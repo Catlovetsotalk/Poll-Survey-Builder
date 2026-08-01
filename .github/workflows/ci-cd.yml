@@ -57,5 +57,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/pollbuilder-api:latest
-            ghcr.io/${{ github.repository_owner }}/pollbuilder-api:${{ github.sha }}
+            ghcr.io/${{ env.OWNER_LC }}/pollbuilder-api:latest
+            ghcr.io/${{ env.OWNER_LC }}/pollbuilder-api:${{ github.sha }}
