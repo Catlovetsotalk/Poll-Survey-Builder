@@ -12,6 +12,7 @@ public class Poll
 {
     public int Id { get; set; }
     public string Code { get; set; } = string.Empty;
+    public string CreatorToken { get; set; } = string.Empty;
     public string Question { get; set; } = string.Empty;
     public PollStatus Status { get; set; } = PollStatus.Open;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -42,12 +42,15 @@ public class PollsController : ControllerBase
             attempts++;
         } while (await _db.Polls.AnyAsync(p => p.Code == code) && attempts < 5);
 
+        var creatorToken = Guid.NewGuid().ToString("N");
+
         var poll = new Poll
         {
             Code = code,
             Question = request.Question.Trim(),
             ExpiresAt = request.ExpiresAt,
             Status = PollStatus.Open,
+            CreatorToken = creatorToken,
             Options = request.Options
                 .Select((text, index) => new PollOption { OptionIndex = index, Text = text.Trim() })
                 .ToList()
@@ -55,6 +58,14 @@ public class PollsController : ControllerBase
 
         _db.Polls.Add(poll);
         await _db.SaveChangesAsync();
+
+        Response.Cookies.Append($"creator_token_{poll.Code}", creatorToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTimeOffset.UtcNow.AddYears(1)
+        });
 
         return CreatedAtAction(nameof(GetPoll), new { code = poll.Code }, new CreatePollResponse { Code = poll.Code });
     }
@@ -116,6 +127,13 @@ public class PollsController : ControllerBase
     {
         var poll = await _db.Polls.FirstOrDefaultAsync(p => p.Code == code);
         if (poll is null) return NotFound();
+
+        var cookieName = $"creator_token_{code}";
+        if (!Request.Cookies.TryGetValue(cookieName, out var providedToken) ||
+            providedToken != poll.CreatorToken)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, "You are not the creator of this poll.");
+        }
 
         poll.Status = PollStatus.Closed;
         await _db.SaveChangesAsync();
