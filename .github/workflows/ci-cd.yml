@@ -59,6 +59,3 @@ jobs:
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/pollbuilder-api:latest
             ghcr.io/${{ env.OWNER_LC }}/pollbuilder-api:${{ github.sha }}
-
-      - name: Trigger Render deploy
-        run: curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
