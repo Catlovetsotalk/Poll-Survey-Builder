@@ -47,6 +47,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Convert owner name to lowercase
+        run: echo "OWNER_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build and push image
         uses: docker/build-push-action@v6
@@ -54,5 +57,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/pollbuilder-api:latest
-            ghcr.io/${{ github.repository_owner }}/pollbuilder-api:${{ github.sha }}
+            ghcr.io/${{ env.OWNER_LC }}/pollbuilder-api:latest
+            ghcr.io/${{ env.OWNER_LC }}/pollbuilder-api:${{ github.sha }}
